@@ -9,10 +9,12 @@ import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import { useAuth } from '../contexts/AuthContext';
+import { makeStyles } from '@material-ui/core/styles';
+
 import { useHistory } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { useAuth } from 'reactfire';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -32,39 +34,33 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+  error: {
+    color: 'red',
+  },
 }));
 
 export default function SignIn() {
+  const auth = useAuth();
   const classes = useStyles();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState();
-
-  const { login } = useAuth();
   const history = useHistory();
 
-  const emailHandler = (e) => {
-    setEmail(e.target.value);
-  };
+  const [error, setError] = useState();
+  const [loading, setLoading] = useState(false);
 
-  const passwordHandler = (e) => {
-    setPassword(e.target.value);
-  };
+  const { register, handleSubmit, errors } = useForm();
 
-  const submitHandler = async () => {
+  const submitHandler = async (data, e) => {
     try {
       setError(null);
       setLoading(true);
-      await login(email, password);
+      await auth.signInWithEmailAndPassword(data.email, data.password);
       history.push('/');
     } catch (e) {
       setError(e);
-      console.log('ERROR: ', e.message);
+      console.log(e);
     }
+    e.target.reset();
     setLoading(false);
-    setEmail('');
-    setPassword('');
   };
 
   return (
@@ -75,45 +71,56 @@ export default function SignIn() {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component='h1' variant='h5'>
-          Sign in
+          Sign In
         </Typography>
-        <div>{error && <Alert severity='error'>{error.message}</Alert>}</div>
-        <form className={classes.form} noValidate>
+        <div>{error && <Alert severity='warning'>{error.message}</Alert>}</div>
+        <form
+          className={classes.form}
+          noValidate
+          onSubmit={handleSubmit(submitHandler)}
+        >
           <TextField
+            name='email'
             variant='outlined'
             margin='normal'
-            required
             fullWidth
             label='Email'
             autoComplete='login'
-            autoFocus
-            value={email}
-            onChange={emailHandler}
+            inputRef={register({
+              required: true,
+              pattern: /\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b/gi,
+            })}
           />
+          {errors.email && errors.email.type === 'required' && (
+            <span className={classes.error}>This is required</span>
+          )}
+          {errors.email && errors.email.type === 'pattern' && (
+            <span className={classes.error}>Wrong format</span>
+          )}
           <TextField
+            name='password'
             variant='outlined'
             margin='normal'
-            required
             fullWidth
-            name='password'
             label='Password'
             type='password'
-            id='password'
             autoComplete='current-password'
-            value={password}
-            onChange={passwordHandler}
+            inputRef={register({ required: true })}
           />
-
+          {errors.password && errors.password.type === 'required' && (
+            <span className={classes.error}>This is required</span>
+          )}
           <Button
             disabled={loading}
             fullWidth
             variant='contained'
             color='primary'
             className={classes.submit}
-            onClick={submitHandler}
+            type='submit'
           >
             Sign In
           </Button>
+
           <Grid container>
             <Grid item>
               <Link href='/signup' variant='body2'>

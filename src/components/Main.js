@@ -1,16 +1,20 @@
 import React from 'react';
-import { useAuth } from '../contexts/AuthContext';
+
 import { useHistory } from 'react-router-dom';
 
 import Button from '@material-ui/core/Button';
+import SignIn from './SignIn';
+
+import { AuthCheck, useUser, useAuth } from 'reactfire';
 
 export default function Main() {
-  const { currentUser, logout } = useAuth();
   const history = useHistory();
+  const auth = useAuth();
+  const { data: user } = useUser();
 
   const handleLogout = async () => {
     try {
-      await logout();
+      auth.signOut();
       history.push('/signin');
     } catch (e) {
       console.log(e);
@@ -18,14 +22,14 @@ export default function Main() {
   };
 
   return (
-    <>
+    <AuthCheck fallback={<SignIn />}>
       <div>MAIN PAGE</div>
       <div>
-        <div>User: {currentUser.email}</div>
+        <div>User: {user && user.email}</div>
         <Button onClick={handleLogout} variant='contained' color='primary'>
           Logout
         </Button>
       </div>
-    </>
+    </AuthCheck>
   );
 }

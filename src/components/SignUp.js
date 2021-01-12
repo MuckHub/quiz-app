@@ -9,10 +9,12 @@ import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import { useAuth } from '../contexts/AuthContext';
+import { makeStyles } from '@material-ui/core/styles';
+
 import { useHistory } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { useAuth } from 'reactfire';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -32,41 +34,33 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+  error: {
+    color: 'red',
+  },
 }));
 
 export default function SignUp() {
+  const auth = useAuth();
   const classes = useStyles();
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState();
-
-  const { signup } = useAuth();
   const history = useHistory();
 
-  const emailHandler = (e) => {
-    setEmail(e.target.value);
-  };
+  const [error, setError] = useState();
+  const [loading, setLoading] = useState(false);
 
-  const passwordHandler = (e) => {
-    setPassword(e.target.value);
-  };
+  const { register, handleSubmit, errors } = useForm();
 
-  const submitHandler = async () => {
+  const submitHandler = async (data, e) => {
     try {
       setError(null);
       setLoading(true);
-
-      await signup(email, password);
+      await auth.createUserWithEmailAndPassword(data.email, data.password);
       history.push('/');
     } catch (e) {
       setError(e);
-      console.log('ERROR: ', e.message);
+      console.log(e);
     }
+    e.target.reset();
     setLoading(false);
-    setEmail('');
-    setPassword('');
   };
 
   return (
@@ -77,51 +71,65 @@ export default function SignUp() {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component='h1' variant='h5'>
-          Sign up
+          Sign Up
         </Typography>
         <div>{error && <Alert severity='warning'>{error.message}</Alert>}</div>
-        <form className={classes.form} noValidate>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                variant='outlined'
-                required
-                fullWidth
-                label='Email'
-                autoComplete='email'
-                value={email}
-                onChange={emailHandler}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                variant='outlined'
-                required
-                fullWidth
-                name='password'
-                label='Password'
-                type='password'
-                id='password'
-                autoComplete='current-password'
-                value={password}
-                onChange={passwordHandler}
-              />
-            </Grid>
-          </Grid>
+        <form
+          className={classes.form}
+          noValidate
+          onSubmit={handleSubmit(submitHandler)}
+        >
+          <TextField
+            name='email'
+            variant='outlined'
+            margin='normal'
+            fullWidth
+            label='Email'
+            autoComplete='login'
+            inputRef={register({
+              required: true,
+              pattern: /\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b/gi,
+            })}
+          />
+          {errors.email && errors.email.type === 'required' && (
+            <span className={classes.error}>This is required</span>
+          )}
+          {errors.email && errors.email.type === 'pattern' && (
+            <span className={classes.error}>Wrong format</span>
+          )}
+          <TextField
+            name='password'
+            variant='outlined'
+            margin='normal'
+            fullWidth
+            label='Password'
+            type='password'
+            autoComplete='current-password'
+            inputRef={register({ required: true, minLength: 6 })}
+          />
+          {errors.password && errors.password.type === 'required' && (
+            <span className={classes.error}>This is required</span>
+          )}
+          {errors.password && errors.password.type === 'minLength' && (
+            <span className={classes.error}>
+              Password must be at least 6 characters long
+            </span>
+          )}
           <Button
             disabled={loading}
             fullWidth
             variant='contained'
             color='primary'
             className={classes.submit}
-            onClick={submitHandler}
+            type='submit'
           >
             Sign Up
           </Button>
+
           <Grid container>
             <Grid item>
               <Link href='/signin' variant='body2'>
-                Already have an account? Sign in
+                {'Already have an account? Sign in'}
               </Link>
             </Grid>
           </Grid>
