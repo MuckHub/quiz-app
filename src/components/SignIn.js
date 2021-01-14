@@ -44,22 +44,23 @@ export default function SignIn() {
   const classes = useStyles();
   const history = useHistory();
 
-  const [error, setError] = useState();
+  // const [error, setError] = useState();
   const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, errors } = useForm();
+  const { register, handleSubmit, errors, setError, clearErrors } = useForm();
 
-  const submitHandler = async (data, e) => {
+  const submitHandler = async (data, event) => {
     try {
-      setError(null);
       setLoading(true);
       await auth.signInWithEmailAndPassword(data.email, data.password);
       history.push('/');
-    } catch (e) {
-      setError(e);
-      console.log(e);
+    } catch (error) {
+      setError('firebase', {
+        type: 'manual',
+        message: error.message,
+      });
     }
-    e.target.reset();
+    event.target.reset();
     setLoading(false);
   };
 
@@ -73,7 +74,11 @@ export default function SignIn() {
         <Typography component='h1' variant='h5'>
           Sign In
         </Typography>
-        <div>{error && <Alert severity='warning'>{error.message}</Alert>}</div>
+        <div>
+          {errors.firebase && (
+            <Alert severity='warning'>{errors.firebase.message}</Alert>
+          )}
+        </div>
         <form
           className={classes.form}
           noValidate
@@ -87,15 +92,15 @@ export default function SignIn() {
             label='Email'
             autoComplete='login'
             inputRef={register({
-              required: true,
-              pattern: /\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b/gi,
+              required: { value: true, message: 'This is required' },
+              pattern: {
+                value: /\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b/gi,
+                message: 'Wrong format',
+              },
             })}
           />
-          {errors.email && errors.email.type === 'required' && (
-            <span className={classes.error}>This is required</span>
-          )}
-          {errors.email && errors.email.type === 'pattern' && (
-            <span className={classes.error}>Wrong format</span>
+          {errors.email?.message && (
+            <span className={classes.error}>{errors.email.message}</span>
           )}
           <TextField
             name='password'
@@ -105,10 +110,12 @@ export default function SignIn() {
             label='Password'
             type='password'
             autoComplete='current-password'
-            inputRef={register({ required: true })}
+            inputRef={register({
+              required: { value: true, message: 'This is required' },
+            })}
           />
-          {errors.password && errors.password.type === 'required' && (
-            <span className={classes.error}>This is required</span>
+          {errors.password?.message && (
+            <span className={classes.error}>{errors.password.message}</span>
           )}
           <Button
             disabled={loading}
@@ -117,6 +124,7 @@ export default function SignIn() {
             color='primary'
             className={classes.submit}
             type='submit'
+            onClick={() => clearErrors()}
           >
             Sign In
           </Button>

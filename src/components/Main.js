@@ -25,7 +25,7 @@ export default function Main() {
     <AuthCheck fallback={<SignIn />}>
       <div>MAIN PAGE</div>
       <div>
-        <div>User: {user && user.email}</div>
+        <div>User: {user?.email}</div>
         <Button onClick={handleLogout} variant='contained' color='primary'>
           Logout
         </Button>
