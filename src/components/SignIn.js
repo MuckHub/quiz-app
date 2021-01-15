@@ -44,7 +44,6 @@ export default function SignIn() {
   const classes = useStyles();
   const history = useHistory();
 
-  // const [error, setError] = useState();
   const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit, errors, setError, clearErrors } = useForm();
