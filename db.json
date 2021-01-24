@@ -1,0 +1,123 @@
+{
+  "packs": [
+    {
+      "id": 1,
+      "title": "JavaScript",
+      "description": "Most common JavaScript questions",
+      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Unofficial_JavaScript_logo_2.svg/262px-Unofficial_JavaScript_logo_2.svg.png",
+      "rating": 0,
+      "questions": [
+        {
+          "question": "What is JavaScript?",
+          "answer": "Programming language"
+        },
+        {
+          "question": "What is hoisting in js?",
+          "answer": "Hoisting is JavaScripts default behavior of moving declarations to the top."
+        },
+        {
+          "question": "What is is IIFE? ",
+          "answer": "An IIFE (Immediately Invoked Function Expression) is a JavaScript function that runs as soon as it is defined."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "React JS",
+      "description": "Most common React questions",
+      "img": "https://www.freecodecamp.org/news/content/images/size/w2000/2020/02/Ekran-Resmi-2019-11-18-18.08.13.png",
+      "rating": 0,
+      "questions": [
+        {
+          "question": "What is JavaScript?",
+          "answer": "Programming language"
+        },
+        {
+          "question": "What is hoisting in js?",
+          "answer": "Hoisting is JavaScripts default behavior of moving declarations to the top."
+        },
+        {
+          "question": "What is is IIFE? ",
+          "answer": "An IIFE (Immediately Invoked Function Expression) is a JavaScript function that runs as soon as it is defined."
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "email": "test@test.ru",
+      "packs": [
+        {
+          "id": 2,
+          "title": "React JS",
+          "questions": [
+            {
+              "question": "What is JavaScript?",
+              "answer": "Programming language",
+              "correct": true
+            },
+            {
+              "question": "What is hoisting in js?",
+              "answer": "Hoisting is JavaScripts default behavior of moving declarations to the top.",
+              "correct": true
+            },
+            {
+              "question": "What is is IIFE? ",
+              "answer": "An IIFE (Immediately Invoked Function Expression) is a JavaScript function that runs as soon as it is defined.",
+              "correct": false
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "title": "JavaScript",
+          "questions": [
+            {
+              "question": "What is JavaScript?",
+              "answer": "Programming language",
+              "correct": false
+            },
+            {
+              "question": "What is hoisting in js?",
+              "answer": "Hoisting is JavaScripts default behavior of moving declarations to the top.",
+              "correct": false
+            },
+            {
+              "question": "What is is IIFE? ",
+              "answer": "An IIFE (Immediately Invoked Function Expression) is a JavaScript function that runs as soon as it is defined.",
+              "correct": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "email": "test@test.com",
+      "packs": [
+        {
+          "id": 1,
+          "title": "JavaScript",
+          "questions": [
+            {
+              "question": "What is JavaScript?",
+              "answer": "Programming language",
+              "correct": true
+            },
+            {
+              "question": "What is hoisting in js?",
+              "answer": "Hoisting is JavaScripts default behavior of moving declarations to the top.",
+              "correct": false
+            },
+            {
+              "question": "What is is IIFE? ",
+              "answer": "An IIFE (Immediately Invoked Function Expression) is a JavaScript function that runs as soon as it is defined.",
+              "correct": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

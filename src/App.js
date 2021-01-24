@@ -5,6 +5,8 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
 import Main from './components/Main';
+import Account from './components/Account';
+import Settings from './components/Settings';
 
 function App() {
   return (
@@ -13,6 +15,8 @@ function App() {
         <Route exact path='/' component={Main} />
         <Route path='/signup' component={SignUp} />
         <Route path='/signin' component={SignIn} />
+        <Route path='/account' component={Account} />
+        <Route path='/settings' component={Settings} />
       </Switch>
     </Router>
   );

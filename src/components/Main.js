@@ -1,35 +1,50 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-import { useHistory } from 'react-router-dom';
-
-import Button from '@material-ui/core/Button';
 import SignIn from './SignIn';
+import NavBar from './NavBar';
+import Pack from './Pack';
 
-import { AuthCheck, useUser, useAuth } from 'reactfire';
+import axios from 'axios';
+
+import Container from '@material-ui/core/Container';
+import { makeStyles } from '@material-ui/core/styles';
+import { AuthCheck } from 'reactfire';
+
+const useStyles = makeStyles((theme) => ({
+  container: {
+    marginTop: theme.spacing(4),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+}));
 
 export default function Main() {
-  const history = useHistory();
-  const auth = useAuth();
-  const { data: user } = useUser();
+  const classes = useStyles();
+  const [data, setData] = useState();
 
-  const handleLogout = async () => {
-    try {
-      auth.signOut();
-      history.push('/signin');
-    } catch (e) {
-      console.log(e);
-    }
+  const getData = async () => {
+    const data = await axios.get('http://localhost:3100/packs');
+    setData(data.data);
   };
+
+  useEffect(() => {
+    getData();
+  }, []);
 
   return (
     <AuthCheck fallback={<SignIn />}>
-      <div>MAIN PAGE</div>
-      <div>
-        <div>User: {user?.email}</div>
-        <Button onClick={handleLogout} variant='contained' color='primary'>
-          Logout
-        </Button>
-      </div>
+      <NavBar path={'main'} />
+      <Container className={classes.container} maxWidth='md'>
+        {data &&
+          data.map((el) => {
+            return (
+              <div key={el.id}>
+                <Pack data={el} />
+              </div>
+            );
+          })}
+      </Container>
     </AuthCheck>
   );
 }
