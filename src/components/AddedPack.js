@@ -26,7 +26,6 @@ const useStyles = makeStyles((theme) => ({
   content: {
     display: 'flex',
     flexDirection: 'column',
-
     width: 230,
   },
   buttons: {
@@ -35,8 +34,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function AddedPack({ data, progress }) {
+export default function AddedPack({ data }) {
   const classes = useStyles();
+
+  const results = data.questions.map((question) => {
+    return question.correct === false ? 0 : 1;
+  });
+  const progress = results.reduce((a, b) => a + b);
+  const percent = Math.round((progress / data.questions.length) * 100);
 
   return (
     <Card className={classes.root}>
@@ -49,11 +54,11 @@ export default function AddedPack({ data, progress }) {
         </Typography>
         <Box display='flex' alignItems='center'>
           <Box width='40%' mr={1}>
-            <LinearProgress variant='determinate' value={progress} />
+            <LinearProgress variant='determinate' value={percent} />
           </Box>
           <Box minWidth={30}>
             <Typography variant='body2' color='textSecondary'>
-              {`${progress}%`}
+              {`${percent}%`}
             </Typography>
           </Box>
         </Box>

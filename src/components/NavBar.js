@@ -8,20 +8,19 @@ import { useAuth } from 'reactfire';
 
 const useStyles = makeStyles((theme) => ({
   nav: {
-    marginTop: theme.spacing(6),
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
   },
   selected: {
-    backgroundColor: '#3f51b5 !important',
+    backgroundColor: '#4c61d6 !important',
     borderRadius: 3,
     color: 'white',
   },
   root: {
     marginRight: '8px',
     '&:hover': {
-      backgroundColor: '#4c61d6 !important',
+      backgroundColor: '#8c9bf1 !important',
       borderRadius: 3,
       color: 'white',
     },

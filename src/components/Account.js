@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 
 import SignIn from './SignIn';
-import NavBar from './NavBar';
+import ResponsiveDrawer from './ResponsiveDrawer';
 import AddedPack from './AddedPack';
 import { AuthCheck, useUser } from 'reactfire';
 import Container from '@material-ui/core/Container';
 import { makeStyles } from '@material-ui/core/styles';
-import axios from 'axios';
+import { getUserPacks } from '../api/packsApi';
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    marginTop: theme.spacing(4),
+    marginTop: theme.spacing(8),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -23,12 +23,11 @@ export default function Account() {
 
   const classes = useStyles();
 
-  const getUserPacks = async () => {
+  const getData = async () => {
     if (user) {
       try {
-        const data = await axios.get(`http://localhost:3100/users/`);
-        const userData = data.data.find((el) => el.email === user.email);
-        setData(userData.packs);
+        const userPacks = await getUserPacks(user.email);
+        setData(userPacks.data[0].packs);
       } catch (error) {
         console.log(error);
       }
@@ -36,24 +35,18 @@ export default function Account() {
   };
 
   useEffect(() => {
-    getUserPacks();
-  }, [user]);
+    getData();
+  }, []);
 
   return (
     <AuthCheck fallback={<SignIn />}>
-      <NavBar path={'account'} />
+      <ResponsiveDrawer path={'account'} />
       <Container className={classes.container} maxWidth='md'>
         {data &&
           data.map((el) => {
-            const results = el.questions.map((question) => {
-              return question.correct === false ? 0 : 1;
-            });
-            const progress = results.reduce((a, b) => a + b);
-            const percent = Math.round((progress / el.questions.length) * 100);
-
             return (
               <div key={el.id}>
-                <AddedPack data={el} progress={percent} />
+                <AddedPack data={el} />
               </div>
             );
           })}
