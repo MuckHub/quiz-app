@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+
 import SignIn from './SignIn';
-import Pack from './Pack';
 import ResponsiveDrawer from './ResponsiveDrawer';
+import AddedPack from './AddedPack';
+import { AuthCheck, useUser } from 'reactfire';
 import Container from '@material-ui/core/Container';
 import { makeStyles } from '@material-ui/core/styles';
-import { AuthCheck } from 'reactfire';
-import { getAllPacks } from '../api/packsApi';
+import { getUserPacks } from '../api/packsApi';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -16,16 +17,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Main() {
-  const classes = useStyles();
+export default function Account() {
+  const { data: user } = useUser();
   const [data, setData] = useState();
 
+  const classes = useStyles();
+
   const getData = async () => {
-    try {
-      const allPacks = await getAllPacks();
-      setData(allPacks.data);
-    } catch (error) {
-      console.log(error);
+    if (user) {
+      try {
+        const userPacks = await getUserPacks(user.email);
+        setData(userPacks.data[0].packs);
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -35,13 +40,13 @@ export default function Main() {
 
   return (
     <AuthCheck fallback={<SignIn />}>
-      <ResponsiveDrawer path={'main'} />
+      <ResponsiveDrawer path={'account'} />
       <Container className={classes.container} maxWidth='md'>
         {data &&
           data.map((el) => {
             return (
               <div key={el.id}>
-                <Pack data={el} />
+                <AddedPack data={el} />
               </div>
             );
           })}
