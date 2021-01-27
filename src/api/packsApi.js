@@ -4,6 +4,11 @@ export const getAllPacks = () => {
   return axios.get('/packs');
 };
 
+export const getPackById = (id) => {
+  return axios.get(`/packs/${id}`);
+};
+
 export const getUserPacks = (email) => {
   return axios.get(`/users/?email=${email}`);
 };
+
