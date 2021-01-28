@@ -9,7 +9,6 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import AddCircle from '@material-ui/icons/AddCircle';
 
-import { getPackById } from '../api/packsApi';
 import { addRating } from '../api/ratingApi';
 
 const useStyles = makeStyles((theme) => ({
@@ -46,29 +45,27 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Pack({ data }) {
+export default function Pack({ data, getData }) {
   const { data: user } = useUser();
   const classes = useStyles();
 
-  const [pack, setPack] = useState(data);
   const [rating, setRating] = useState({ value: 0, status: false });
 
   const ratingHandler = async (value) => {
-    const newData = pack;
+    const newData = data;
     newData.rating.push({ user: user.email, rating: value });
     try {
-      await addRating(pack.id, newData);
-      const updated = await getPackById(pack.id);
-      setPack(updated.data);
+      await addRating(data.id, newData);
+      getData();
     } catch (error) {
       console.log(error);
     }
   };
 
   const ratingSetup = () => {
-    if (pack?.rating.length > 0) {
-      const rated = !!pack.rating.find((el) => el.user === user.email);
-      const sum = pack.rating.map((el) => {
+    if (data?.rating.length > 0) {
+      const rated = !!data.rating.find((el) => el.user === user.email);
+      const sum = data.rating.map((el) => {
         return el.rating;
       });
       const avgRating = sum.reduce((a, b) => a + b) / sum.length;
@@ -78,38 +75,38 @@ export default function Pack({ data }) {
 
   useEffect(() => {
     ratingSetup();
-  }, [pack]);
+  }, [data]);
 
   return (
     <Card className={classes.root}>
-      <CardMedia className={classes.cover} image={pack.img} />
+      <CardMedia className={classes.cover} image={data.img} />
       <div className={classes.details}>
         <CardContent className={classes.content}>
           <Typography component='h5' variant='h5'>
-            {pack.title}
+            {data.title}
           </Typography>
           <Typography variant='subtitle1' color='textSecondary'>
-            {pack.description}
+            {data.description}
           </Typography>
           <Typography variant='subtitle1' color='textSecondary'>
-            ({pack.questions.length} questions)
+            ({data.questions.length} questions)
           </Typography>
           <div className={classes.rating}>
             <Rating
-              name={pack.title}
+              name={data.title}
               disabled={rating?.status}
               onChange={(event, value) => ratingHandler(value)}
               value={rating?.value}
             />
             <Typography variant='subtitle1' color='textSecondary'>
-              ({pack.rating.length})
+              ({data.rating.length})
             </Typography>
           </div>
         </CardContent>
       </div>
       <CardContent className={classes.add}>
         <IconButton
-          onClick={() => console.log(pack.id)}
+          onClick={() => console.log(data.id)}
           color='primary'
           aria-label='add an alarm'
         >
