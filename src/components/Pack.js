@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useUser } from 'reactfire';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -45,37 +45,31 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Pack({ data, getData }) {
+export default function Pack({ data, onRatingUpdate }) {
   const { data: user } = useUser();
   const classes = useStyles();
 
-  const [rating, setRating] = useState({ value: 0, status: false });
-
-  const ratingHandler = async (value) => {
-    const newData = data;
-    newData.rating.push({ user: user.email, rating: value });
-    try {
-      await addRating(data.id, newData);
-      getData();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const ratingSetup = () => {
+  const rating = useMemo(() => {
     if (data?.rating.length > 0) {
       const rated = !!data.rating.find((el) => el.user === user.email);
       const sum = data.rating.map((el) => {
         return el.rating;
       });
       const avgRating = sum.reduce((a, b) => a + b) / sum.length;
-      setRating({ value: avgRating, status: rated });
+      return { value: avgRating, status: rated };
+    }
+  }, [data]);
+
+  const ratingHandler = async (value) => {
+    const newData = Object.assign({}, data);
+    newData.rating.push({ user: user.email, rating: value });
+    try {
+      await addRating(data.id, newData);
+      onRatingUpdate();
+    } catch (error) {
+      console.log(error);
     }
   };
-
-  useEffect(() => {
-    ratingSetup();
-  }, [data]);
 
   return (
     <Card className={classes.root}>
