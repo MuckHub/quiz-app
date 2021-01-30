@@ -41,7 +41,7 @@ export default function Main() {
           data.map((el) => {
             return (
               <div key={el.id}>
-                <Pack data={el} />
+                <Pack data={el} onRatingUpdate={getData} />
               </div>
             );
           })}

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useUser } from 'reactfire';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -7,6 +8,8 @@ import Rating from '@material-ui/lab/Rating';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import AddCircle from '@material-ui/icons/AddCircle';
+
+import { addRating } from '../api/ratingApi';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,13 +39,36 @@ const useStyles = makeStyles((theme) => ({
       display: 'none',
     },
   },
+  rating: {
+    display: 'flex',
+    marginTop: 26,
+  },
 }));
 
-export default function Pack({ data }) {
+export default function Pack({ data, onRatingUpdate }) {
+  const { data: user } = useUser();
   const classes = useStyles();
 
-  const ratingHandler = (value) => {
-    console.log(value);
+  const rating = useMemo(() => {
+    if (data?.rating.length > 0) {
+      const rated = !!data.rating.find((el) => el.user === user.email);
+      const sum = data.rating.map((el) => {
+        return el.rating;
+      });
+      const avgRating = sum.reduce((a, b) => a + b) / sum.length;
+      return { value: avgRating, status: rated };
+    }
+  }, [data]);
+
+  const ratingHandler = async (value) => {
+    const newData = Object.assign({}, data);
+    newData.rating.push({ user: user.email, rating: value });
+    try {
+      await addRating(data.id, newData);
+      onRatingUpdate();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -59,15 +85,25 @@ export default function Pack({ data }) {
           <Typography variant='subtitle1' color='textSecondary'>
             ({data.questions.length} questions)
           </Typography>
-          <Rating
-            onChange={(event, value) => ratingHandler(value)}
-            name='size-medium'
-            defaultValue={data.rating}
-          />
+          <div className={classes.rating}>
+            <Rating
+              name={data.title}
+              disabled={rating?.status}
+              onChange={(event, value) => ratingHandler(value)}
+              value={rating?.value}
+            />
+            <Typography variant='subtitle1' color='textSecondary'>
+              ({data.rating.length})
+            </Typography>
+          </div>
         </CardContent>
       </div>
       <CardContent className={classes.add}>
-        <IconButton color='primary' aria-label='add an alarm'>
+        <IconButton
+          onClick={() => console.log(data.id)}
+          color='primary'
+          aria-label='add an alarm'
+        >
           <AddCircle fontSize='large' />
         </IconButton>
       </CardContent>
