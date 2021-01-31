@@ -11,6 +11,8 @@ import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import Tooltip from '@material-ui/core/Tooltip';
 
+import { getUserData, updateUserData } from '../api/userApi';
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
@@ -34,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function AddedPack({ data }) {
+export default function AddedPack({ data, user, onAddedPacksUpdate }) {
   const classes = useStyles();
 
   const results = data.questions.map((question) => {
@@ -42,6 +44,19 @@ export default function AddedPack({ data }) {
   });
   const progress = results.reduce((a, b) => a + b);
   const percent = Math.round((progress / data.questions.length) * 100);
+
+  const removePackHandler = async () => {
+    const userData = await getUserData(user.email);
+    const newData = userData.data[0];
+    const updatedPacks = newData.packs.filter((el) => el.id !== data.id);
+    newData.packs = updatedPacks;
+    await updateUserData(newData.id, newData);
+    onAddedPacksUpdate();
+  };
+
+  const resetPackHandler = async () => {
+    console.log('reset');
+  };
 
   return (
     <Card className={classes.root}>
@@ -72,13 +87,22 @@ export default function AddedPack({ data }) {
         </Tooltip>
 
         <Tooltip title='Reset'>
-          <IconButton color='primary' aria-label='reset'>
+          <IconButton
+            disabled={percent === 0 ? true : false}
+            onClick={resetPackHandler}
+            color='primary'
+            aria-label='reset'
+          >
             <RotateLeftIcon fontSize='large' />
           </IconButton>
         </Tooltip>
 
         <Tooltip title='Remove'>
-          <IconButton color='primary' aria-label='delete'>
+          <IconButton
+            onClick={removePackHandler}
+            color='primary'
+            aria-label='delete'
+          >
             <HighlightOffIcon fontSize='large' />
           </IconButton>
         </Tooltip>

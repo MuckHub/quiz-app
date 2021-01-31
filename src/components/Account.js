@@ -6,7 +6,7 @@ import AddedPack from './AddedPack';
 import { AuthCheck, useUser } from 'reactfire';
 import Container from '@material-ui/core/Container';
 import { makeStyles } from '@material-ui/core/styles';
-import { getUserPacks } from '../api/packsApi';
+import { getUserData } from '../api/userApi';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -14,6 +14,9 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+  },
+  message: {
+    marginTop: 20,
   },
 }));
 
@@ -26,8 +29,8 @@ export default function Account() {
   const getData = async () => {
     if (user) {
       try {
-        const userPacks = await getUserPacks(user.email);
-        setData(userPacks.data[0].packs);
+        const userData = await getUserData(user.email);
+        setData(userData.data[0].packs);
       } catch (error) {
         console.log(error);
       }
@@ -42,14 +45,19 @@ export default function Account() {
     <AuthCheck fallback={<SignIn />}>
       <ResponsiveDrawer path={'account'} />
       <Container className={classes.container} maxWidth='md'>
-        {data &&
+        {data?.length > 0 ? (
           data.map((el) => {
             return (
               <div key={el.id}>
-                <AddedPack data={el} />
+                <AddedPack data={el} user={user} onAddedPacksUpdate={getData} />
               </div>
             );
-          })}
+          })
+        ) : (
+          <div className={classes.message}>
+            You have no packs added to your profile.
+          </div>
+        )}
       </Container>
     </AuthCheck>
   );

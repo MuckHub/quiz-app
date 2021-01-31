@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useUser } from 'reactfire';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -10,6 +10,7 @@ import IconButton from '@material-ui/core/IconButton';
 import AddCircle from '@material-ui/icons/AddCircle';
 
 import { addRating } from '../api/ratingApi';
+import { getUserData, updateUserData } from '../api/userApi';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,7 +48,24 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Pack({ data, onRatingUpdate }) {
   const { data: user } = useUser();
+  const [addButtonState, setAddButtonState] = useState(false);
   const classes = useStyles();
+
+  useEffect(() => {
+    addButtonStatus();
+  }, []);
+
+  const addButtonStatus = async () => {
+    try {
+      const userData = await getUserData(user.email);
+      const buttonState = !!userData.data[0].packs.find(
+        (el) => el.id === data.id
+      );
+      setAddButtonState(buttonState);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const rating = useMemo(() => {
     if (data?.rating.length > 0) {
@@ -69,6 +87,24 @@ export default function Pack({ data, onRatingUpdate }) {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const addPackHandler = async () => {
+    const newPack = {
+      id: data.id,
+      title: data.title,
+      questions: data.questions,
+    };
+    newPack.questions.map((el) => (el.correct = false));
+    try {
+      const userData = await getUserData(user.email);
+      const newData = userData.data[0];
+      newData.packs.push(newPack);
+      await updateUserData(newData.id, newData);
+    } catch (error) {
+      console.log(error);
+    }
+    addButtonStatus();
   };
 
   return (
@@ -100,7 +136,8 @@ export default function Pack({ data, onRatingUpdate }) {
       </div>
       <CardContent className={classes.add}>
         <IconButton
-          onClick={() => console.log(data.id)}
+          disabled={addButtonState}
+          onClick={addPackHandler}
           color='primary'
           aria-label='add an alarm'
         >
