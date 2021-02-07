@@ -10,7 +10,7 @@ import ResponsiveDrawer from './ResponsiveDrawer';
 import Container from '@material-ui/core/Container';
 import { makeStyles } from '@material-ui/core/styles';
 import { AuthCheck, useUser } from 'reactfire';
-import { getUserData, updateUserData } from '../api/userApi';
+import { updateCorrectAnswer, getUnansweredQuestions } from '../api/userApi';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -83,30 +83,10 @@ export default function PackPage() {
   const [currentQuestion, setCurrentQuestion] = useState();
   const [toggle, setToggle] = useState(false);
 
-  const updateUserPack = async (question) => {
-    const userData = await getUserData(user.email);
-
-    const updatedUserData = userData.data[0].packs.map((el) => {
-      if (el.id === data.id) {
-        el.questions.map((el) => {
-          if (el.question === question.question) {
-            el.correct = true;
-            return el;
-          }
-          return el;
-        });
-      }
-      return el;
-    });
-
-    userData.data[0].packs = updatedUserData;
-    await updateUserData(userData.data[0].id, userData.data[0]);
-  };
-
   const getQuestion = (result) => {
     if (data && allQuestions) {
       if (result) {
-        updateUserPack(currentQuestion);
+        updateCorrectAnswer(user.email, data, currentQuestion);
       }
       const random = Math.floor(Math.random() * allQuestions.length);
       const nextQuestion = allQuestions[random];
@@ -120,20 +100,9 @@ export default function PackPage() {
 
   const getData = async () => {
     if (user) {
-      try {
-        const userData = await getUserData(user.email);
-        const packData = userData.data[0].packs.filter(
-          (el) => el.id === parseInt(packId)
-        );
-        const activeQuestions = packData[0].questions.filter((el) => {
-          if (el.correct === false) return el;
-        });
-        packData[0].questions = activeQuestions;
-        setAllQuestions(packData[0].questions);
-        setData(packData[0]);
-      } catch (error) {
-        console.log(error);
-      }
+      const activeQuestions = await getUnansweredQuestions(user.email, packId);
+      setAllQuestions(activeQuestions.questions);
+      setData(activeQuestions);
     }
   };
 

@@ -12,7 +12,7 @@ import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import { getUserData, updateUserData } from '../api/userApi';
+import { resetUserPack, removeUserPack } from '../api/userApi';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,30 +47,12 @@ export default function AddedPack({ data, user, onAddedPacksUpdate }) {
   const percent = Math.round((progress / data.questions.length) * 100);
 
   const removePackHandler = async () => {
-    const userData = await getUserData(user.email);
-    const newData = userData.data[0];
-    const updatedPacks = newData.packs.filter((el) => el.id !== data.id);
-    newData.packs = updatedPacks;
-
-    await updateUserData(newData.id, newData);
+    await removeUserPack(user.email, data.id);
     onAddedPacksUpdate();
   };
 
   const resetPackHandler = async (packId) => {
-    const userData = await getUserData(user.email);
-    const newData = userData.data[0];
-
-    const packData = newData.packs.map((el) => {
-      if (el.id === packId) {
-        el.questions.forEach((el) => {
-          el['correct'] = false;
-        });
-        return el;
-      }
-      return el;
-    });
-    newData.packs = packData;
-    await updateUserData(newData.id, newData);
+    await resetUserPack(user.email, packId);
     onAddedPacksUpdate();
   };
 

@@ -120,32 +120,6 @@
       "email": "test@test.com",
       "packs": [
         {
-          "id": 1,
-          "title": "JavaScript",
-          "questions": [
-            {
-              "question": "What is JavaScript?",
-              "answer": "Programming language",
-              "correct": false
-            },
-            {
-              "question": "What is hoisting in js?",
-              "answer": "Hoisting is JavaScripts default behavior of moving declarations to the top.",
-              "correct": false
-            },
-            {
-              "question": "What is is IIFE? ",
-              "answer": "An IIFE (Immediately Invoked Function Expression) is a JavaScript function that runs as soon as it is defined.",
-              "correct": false
-            },
-            {
-              "question": "What is the use of isNaN function?",
-              "answer": "isNan function returns true if the argument is not a number otherwise it is false.",
-              "correct": false
-            }
-          ]
-        },
-        {
           "id": 2,
           "title": "React JS",
           "questions": [
