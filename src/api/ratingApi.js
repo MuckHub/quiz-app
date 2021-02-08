@@ -1,5 +1,7 @@
 import { axios } from './axios';
 
-export const addRating = (id, data) => {
-  return axios.put(`/packs/${id}`, data);
+export const addRating = async (id, data, email, value) => {
+  const newData = Object.assign({}, data);
+  newData.rating.push({ user: email, rating: value });
+  axios.put(`/packs/${id}`, newData);
 };

@@ -10,7 +10,7 @@ import IconButton from '@material-ui/core/IconButton';
 import AddCircle from '@material-ui/icons/AddCircle';
 
 import { addRating } from '../api/ratingApi';
-import { getUserData, updateUserData } from '../api/userApi';
+import { getUserData, updateUserData, addUserPack } from '../api/userApi';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Pack({ data, onRatingUpdate }) {
   const { data: user } = useUser();
-  const [addButtonState, setAddButtonState] = useState(false);
+  const [addButtonState, setAddButtonState] = useState();
   const classes = useStyles();
 
   useEffect(() => {
@@ -79,32 +79,13 @@ export default function Pack({ data, onRatingUpdate }) {
   }, [data]);
 
   const ratingHandler = async (value) => {
-    const newData = Object.assign({}, data);
-    newData.rating.push({ user: user.email, rating: value });
-    try {
-      await addRating(data.id, newData);
-      onRatingUpdate();
-    } catch (error) {
-      console.log(error);
-    }
+    await addRating(data.id, data, user.email, value);
+    onRatingUpdate();
   };
 
   const addPackHandler = async () => {
-    const newPack = {
-      id: data.id,
-      title: data.title,
-      questions: data.questions,
-    };
-    newPack.questions.map((el) => (el.correct = false));
-    try {
-      const userData = await getUserData(user.email);
-      const newData = userData.data[0];
-      newData.packs.push(newPack);
-      await updateUserData(newData.id, newData);
-    } catch (error) {
-      console.log(error);
-    }
-    addButtonStatus();
+    await addUserPack(user.email, data);
+    setAddButtonState(true);
   };
 
   return (

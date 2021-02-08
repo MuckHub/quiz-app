@@ -7,6 +7,7 @@ import SignUp from './components/SignUp';
 import Main from './components/Main';
 import Account from './components/Account';
 import Settings from './components/Settings';
+import PackPage from './components/PackPage';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path='/signin' component={SignIn} />
         <Route path='/account' component={Account} />
         <Route path='/settings' component={Settings} />
+        <Route path='/pack/:packId' component={PackPage} />
       </Switch>
     </Router>
   );

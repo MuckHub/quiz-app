@@ -1,5 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { Link } from 'react-router-dom';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Box from '@material-ui/core/Box';
@@ -11,7 +12,7 @@ import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import { getUserData, updateUserData } from '../api/userApi';
+import { resetUserPack, removeUserPack } from '../api/userApi';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -46,16 +47,13 @@ export default function AddedPack({ data, user, onAddedPacksUpdate }) {
   const percent = Math.round((progress / data.questions.length) * 100);
 
   const removePackHandler = async () => {
-    const userData = await getUserData(user.email);
-    const newData = userData.data[0];
-    const updatedPacks = newData.packs.filter((el) => el.id !== data.id);
-    newData.packs = updatedPacks;
-    await updateUserData(newData.id, newData);
+    await removeUserPack(user.email, data.id);
     onAddedPacksUpdate();
   };
 
-  const resetPackHandler = async () => {
-    console.log('reset');
+  const resetPackHandler = async (packId) => {
+    await resetUserPack(user.email, packId);
+    onAddedPacksUpdate();
   };
 
   return (
@@ -81,20 +79,28 @@ export default function AddedPack({ data, user, onAddedPacksUpdate }) {
 
       <CardContent className={classes.buttons}>
         <Tooltip title='Start'>
-          <IconButton color='primary' aria-label='start'>
+          <IconButton
+            disabled={percent === 100 ? true : false}
+            component={Link}
+            to={`/pack/${data.id}`}
+            color='primary'
+            aria-label='start'
+          >
             <PlayCircleOutlineIcon fontSize='large' />
           </IconButton>
         </Tooltip>
 
         <Tooltip title='Reset'>
-          <IconButton
-            disabled={percent === 0 ? true : false}
-            onClick={resetPackHandler}
-            color='primary'
-            aria-label='reset'
-          >
-            <RotateLeftIcon fontSize='large' />
-          </IconButton>
+          <div>
+            <IconButton
+              disabled={percent === 0 ? true : false}
+              onClick={() => resetPackHandler(data.id)}
+              color='primary'
+              aria-label='reset'
+            >
+              <RotateLeftIcon fontSize='large' />
+            </IconButton>
+          </div>
         </Tooltip>
 
         <Tooltip title='Remove'>
